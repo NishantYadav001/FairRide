@@ -1,0 +1,74 @@
+Updation in Round 2
+This file explains the changes made in Round 2 of the FairRide project.  
+In this round, the main aim was to add better features, improve the design, and make the project feel more like a real application.
+
+--------------------------------------------------
+
+1. New Features
+
+- Added Google Maps search with location suggestions and current location option  
+- Added user login using Email or Phone OTP  
+- Previous trips are now saved automatically  
+- Users can see price comparison and estimated savings  
+- Favourite routes, price alerts, sharing, and PDF download options are added  
+
+--------------------------------------------------
+
+2. UI and UX Improvements
+
+- Design is improved using cards and gradient backgrounds  
+- Simple animations are added for better interaction  
+- Loading screens, price charts, and real logos are used  
+- Dark mode and light mode options are available  
+- Mobile-friendly layout with bottom navigation and swipe support  
+
+--------------------------------------------------
+
+3. Live Tracking and Pricing
+
+- Live cab movement is shown on the map  
+- Multiple cabs are displayed for each provider  
+- Availability is shown using a heatmap  
+- Traffic is shown on the map  
+- Prices update automatically and surge pricing is simulated  
+
+--------------------------------------------------
+
+4. Feature Priority (Round 2)
+
+High Priority (Week 1)  
+- Live tracking and map-related features  
+
+Medium Priority (Week 1)  
+- UI improvements and dark mode  
+
+Low Priority (Week 2)  
+- User login, trip history, and favourite routes  
+
+--------------------------------------------------
+
+5. Tech Stack Used
+
+- Frontend: React / Next.js  
+- Maps: Google Maps API  
+- Styling: Tailwind CSS  
+- Backend (Mock): Node.js / Firebase  
+- Database: Firebase / MongoDB  
+
+--------------------------------------------------
+
+6. Goal of Round 2
+
+The goal of this round was to make FairRide easier to use, more interactive, and closer to a real-world cab comparison system.
+
+--------------------------------------------------
+
+7. Next Steps
+
+- Add real cab provider APIs  
+- Improve price prediction  
+- Support more cities  
+
+--------------------------------------------------
+
+Thank you for checking the Round 2 updates of FairRide.
