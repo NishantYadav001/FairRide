@@ -17,81 +17,131 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        html, body {
+        html {
+            height: 100%;
+            scroll-behavior: smooth;
+        }
+
+        body {
             height: 100%;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: var(--text-color);
             background-color: var(--background-color);
+            opacity: 0;
+            transition: opacity 0.25s ease-out;
+        }
+        body.page-loaded {
+            opacity: 1;
         }
 
-        /* Header & Navigation */
-        header {
-            background: var(--tertiary-color);
-            border-bottom: 1px solid var(--border-color);
-            padding: 16px 32px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        nav {
+        /* App layout */
+        .app-layout {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1200px;
-            margin: 0 auto;
+            min-height: 100vh;
         }
 
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
+        /* Fixed sidebar */
+        .sidebar {
+            width: 220px;
+            background-color: #000000;
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 16px 12px;
+            gap: 16px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+        }
+
+        .sidebar-logo {
             display: flex;
             align-items: center;
             gap: 8px;
+            font-weight: 700;
+            font-size: 20px;
+            padding: 8px 10px;
         }
 
-        .nav-links {
+        .sidebar-nav {
             display: flex;
-            gap: 24px;
-            list-style: none;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 8px;
         }
 
-        .nav-links a {
-            text-decoration: none;
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 8px;
+            background: transparent;
+            border: none;
             color: var(--text-color);
-            font-weight: 500;
-            transition: color 0.3s ease;
+            font-size: 14px;
+            text-align: left;
             cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.15s ease, color 0.15s ease;
         }
 
-        .nav-links a:hover { color: var(--primary-color); }
+        .sidebar-item:hover {
+            background-color: #1f1f1f;
+            color: var(--primary-color);
+        }
 
-        .btn-auth { display: flex; gap: 16px; }
+        .sidebar-icon {
+            font-size: 18px;
+        }
 
-        .btn-auth button {
+        .sidebar-label {
+            font-size: 14px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 8px 10px;
+        }
+
+        .sidebar-auth-btn {
             background-color: transparent;
             border: 1px solid var(--primary-color);
             color: var(--primary-color);
-            padding: 8px 16px;
-            border-radius: 24px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 13px;
             cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
+            transition: background-color 0.15s ease, color 0.15s ease;
         }
 
-        .btn-auth button.btn-primary {
+        .sidebar-auth-btn.primary {
             background-color: var(--primary-color);
             color: var(--background-color);
         }
 
-        .btn-auth button:hover {
+        .sidebar-auth-btn:hover {
             background-color: var(--primary-color);
             color: var(--background-color);
+        }
+
+        /* Main content */
+        .main-content {
+            flex: 1;
+            display: block;
+            min-width: 0;
+            margin-left: 220px; /* same as sidebar width */
         }
 
         /* Hero Section */
         .hero {
             background: var(--tertiary-color);
-            padding: 60px 24px;
+            padding: 40px 24px;
             text-align: center;
         }
 
@@ -101,7 +151,7 @@
         }
 
         .hero h1 {
-            font-size: 48px;
+            font-size: 40px;
             margin-bottom: 16px;
             font-weight: 700;
         }
@@ -118,7 +168,7 @@
             padding: 32px;
             border-radius: 12px;
             max-width: 900px;
-            margin: -60px auto 32px;
+            margin: -40px auto 32px;
             box-shadow: 0 8px 16px var(--shadow-color);
             position: relative;
             z-index: 10;
@@ -167,7 +217,7 @@
             border-radius: 8px;
             font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background-color 0.2s;
         }
 
         .form-grid .btn-compare:hover { background-color: #1ed760; }
@@ -218,7 +268,7 @@
             border-radius: 8px;
             cursor: pointer;
             font-weight: 500;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .filter-btn.active {
@@ -336,8 +386,6 @@
             background-color: var(--primary-color);
         }
 
-        .status-dot.unavailable { background-color: #4f4f4f; }
-
         .availability-text { font-size: 14px; font-weight: 500; }
 
         .availability-count { font-size: 12px; color: #a0a0a0; }
@@ -351,7 +399,7 @@
             font-weight: 600;
             cursor: pointer;
             font-size: 13px;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .action-btn:hover { background-color: #1ed760; }
@@ -365,7 +413,7 @@
             font-weight: 600;
         }
 
-        /* Modal Styles */
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -409,12 +457,11 @@
             font-size: 24px;
             cursor: pointer;
             color: #a0a0a0;
-            transition: color 0.3s ease;
+            transition: color 0.2s ease;
         }
 
         .close-btn:hover { color: var(--text-color); }
 
-        /* Footer */
         footer {
             background-color: var(--tertiary-color);
             color: #a0a0a0;
@@ -426,9 +473,7 @@
         }
     </style>
 
-    <!-- Load config with API key -->
     <script src="config.js"></script>
-    <!-- Dynamically load Maps JS -->
     <script>
         (function() {
             if (!window.config || !window.config.googleMapsApiKey) {
@@ -446,91 +491,100 @@
     </script>
 </head>
 <body>
-    <!-- Header & Navigation -->
-    <header>
-        <nav>
-            <div class="logo">
-                <span>🚗</span>
-                <span>FairRide</span>
-            </div>
-            <ul class="nav-links">
-                <li><a onclick="scrollToSection('search')">Home</a></li>
-                <li><a onclick="scrollToSection('how-it-works')">How It Works</a></li>
-                <li><a href="dashboard.html">Dashboard</a></li>
-                <li><a href="history.html">History</a></li>
-                <li><a href="about.html">About</a></li>
-            </ul>
-            <div class="btn-auth">
-                <button onclick="openAuthModal('login')">Login</button>
-                <button class="btn-primary" onclick="openAuthModal('signup')">Sign Up</button>
-            </div>
-        </nav>
-    </header>
-
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-content">
-            <h1>Compare Cab Fares Instantly</h1>
-            <p>Get the best price across all major ride-sharing platforms in one place</p>
+<div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <span aria-hidden="true">🚗</span>
+            <span>FairRide</span>
         </div>
-    </section>
 
-    <!-- Search Form -->
-    <section class="search-form" id="search">
-        <div class="form-grid">
-            <div class="form-group">
-                <label for="pickup">Pickup Location</label>
-                <input type="text" id="pickup" placeholder="Enter pickup location">
-            </div>
-            <div class="form-group">
-                <label for="dropoff">Dropoff Location</label>
-                <input type="text" id="dropoff" placeholder="Enter dropoff location">
-            </div>
-            <div class="form-group">
-                <label for="ride-type">Ride Type</label>
-                <select id="ride-type">
-                    <option>Local</option>
-                    <option>Outstation</option>
-                    <option>Airport</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="time">Time</label>
-                <select id="time">
-                    <option>Now</option>
-                    <option>Schedule Later</option>
-                </select>
-            </div>
-            <button class="btn-compare" onclick="compareFares()">
-                Compare
+        <nav class="sidebar-nav">
+            <button class="sidebar-item" onclick="scrollToSection('search')" style="opacity:0.9;">
+                <span class="sidebar-icon">🏠</span>
+                <span class="sidebar-label">Home</span>
             </button>
-        </div>
-    </section>
+            <a class="sidebar-item" href="dashboard.html">
+                <span class="sidebar-icon">📊</span>
+                <span class="sidebar-label">Dashboard</span>
+            </a>
+            <a class="sidebar-item" href="history.html">
+                <span class="sidebar-icon">🕒</span>
+                <span class="sidebar-label">History</span>
+            </a>
+            <a class="sidebar-item" href="about.html">
+                <span class="sidebar-icon">ℹ️</span>
+                <span class="sidebar-label">About</span>
+            </a>
+        </nav>
 
-    <!-- Main Content -->
-    <div class="results-section" id="results-section" style="display: none;">
-        <!-- Results Header with Filters -->
-        <div class="results-header">
-            <div class="route-info">
-                <h3 id="route-title">Route</h3>
-                <div class="route-details">
-                    <span>📏 <strong id="distance">–</strong></span>
-                    <span>⏱️ <strong id="duration">–</strong></span>
-                    <span>💰 Avg: <strong id="avg-price">–</strong></span>
+        <div class="sidebar-footer">
+            <button class="sidebar-auth-btn" onclick="openAuthModal('login')">Login</button>
+            <button class="sidebar-auth-btn primary" onclick="openAuthModal('signup')">Sign Up</button>
+        </div>
+    </aside>
+
+    <!-- Main content -->
+    <main class="main-content">
+        <section class="hero">
+            <div class="hero-content">
+                <h1>Compare Cab Fares Instantly</h1>
+                <p>Get the best price across all major ride-sharing platforms in one place</p>
+            </div>
+        </section>
+
+        <section class="search-form" id="search">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="pickup">Pickup Location</label>
+                    <input type="text" id="pickup" placeholder="Enter pickup location" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="dropoff">Dropoff Location</label>
+                    <input type="text" id="dropoff" placeholder="Enter dropoff location" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="ride-type">Ride Type</label>
+                    <select id="ride-type">
+                        <option>Local</option>
+                        <option>Outstation</option>
+                        <option>Airport</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="time">Time</label>
+                    <select id="time">
+                        <option>Now</option>
+                        <option>Schedule Later</option>
+                    </select>
+                </div>
+                <button class="btn-compare" onclick="compareFares()">
+                    Compare
+                </button>
+            </div>
+        </section>
+
+        <div class="results-section" id="results-section" style="display: none;">
+            <div class="results-header">
+                <div class="route-info">
+                    <h3 id="route-title">Route</h3>
+                    <div class="route-details">
+                        <span>📏 <strong id="distance">–</strong></span>
+                        <span>⏱️ <strong id="duration">–</strong></span>
+                        <span>💰 Avg: <strong id="avg-price">–</strong></span>
+                    </div>
+                </div>
+                <div class="filter-section">
+                    <button class="filter-btn active" onclick="filterResults('all', event)">All</button>
+                    <button class="filter-btn" onclick="filterResults('cheapest', event)">💰 Cheapest</button>
+                    <button class="filter-btn" onclick="filterResults('fastest', event)">⚡ Fastest</button>
                 </div>
             </div>
-            <div class="filter-section">
-                <button class="filter-btn active" onclick="filterResults('all', event)">All</button>
-                <button class="filter-btn" onclick="filterResults('cheapest', event)">💰 Cheapest</button>
-                <button class="filter-btn" onclick="filterResults('fastest', event)">⚡ Fastest</button>
-            </div>
-        </div>
 
-        <!-- Results Table -->
-        <div class="results-table">
-            <div class="table-wrapper">
-                <table id="results-table">
-                    <thead>
+            <div class="results-table">
+                <div class="table-wrapper">
+                    <table id="results-table">
+                        <thead>
                         <tr>
                             <th onclick="sortTable('provider')">Provider</th>
                             <th>Vehicle Type</th>
@@ -539,251 +593,264 @@
                             <th>Availability</th>
                             <th>Action</th>
                         </tr>
-                    </thead>
-                    <tbody id="table-body">
-                        <!-- Data will be populated here -->
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody id="table-body"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- How It Works Section -->
-    <section id="how-it-works" style="max-width: 1200px; margin: 60px auto; padding: 0 24px;">
-        <h2 style="text-align: center; margin-bottom: 40px; font-size: 32px;">How It Works</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px;">
-            <div style="text-align: center; padding: 24px; background: var(--secondary-color); border-radius: 12px;">
-                <div style="font-size: 40px; margin-bottom: 16px;">📍</div>
-                <h3>Enter Locations</h3>
-                <p style="color: #a0a0a0; font-size: 14px;">Enter your pickup and dropoff locations</p>
+        <section id="how-it-works" style="max-width: 1200px; margin: 60px auto; padding: 0 24px;">
+            <h2 style="text-align: center; margin-bottom: 40px; font-size: 32px;">How It Works</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px;">
+                <div style="text-align: center; padding: 24px; background: var(--secondary-color); border-radius: 12px;">
+                    <div style="font-size: 40px; margin-bottom: 16px;">📍</div>
+                    <h3>Enter Locations</h3>
+                    <p style="color: #a0a0a0; font-size: 14px;">Enter your pickup and dropoff locations</p>
+                </div>
+                <div style="text-align: center; padding: 24px; background: var(--secondary-color); border-radius: 12px;">
+                    <div style="font-size: 40px; margin-bottom: 16px;">⚡</div>
+                    <h3>Instant Comparison</h3>
+                    <p style="color: #a0a0a0; font-size: 14px;">Get fares from all platforms instantly</p>
+                </div>
+                <div style="text-align: center; padding: 24px; background: var(--secondary-color); border-radius: 12px;">
+                    <div style="font-size: 40px; margin-bottom: 16px;">💰</div>
+                    <h3>Save Money</h3>
+                    <p style="color: #a0a0a0; font-size: 14px;">Choose the best deal and book directly</p>
+                </div>
             </div>
-            <div style="text-align: center; padding: 24px; background: var(--secondary-color); border-radius: 12px;">
-                <div style="font-size: 40px; margin-bottom: 16px;">⚡</div>
-                <h3>Instant Comparison</h3>
-                <p style="color: #a0a0a0; font-size: 14px;">Get fares from all platforms instantly</p>
-            </div>
-            <div style="text-align: center; padding: 24px; background: var(--secondary-color); border-radius: 12px;">
-                <div style="font-size: 40px; margin-bottom: 16px;">💰</div>
-                <h3>Save Money</h3>
-                <p style="color: #a0a0a0; font-size: 14px;">Choose the best deal and book directly</p>
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Auth Modal -->
-    <div id="authModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="auth-title">Login</h2>
-                <button class="close-btn" onclick="closeAuthModal()">&times;</button>
-            </div>
-            <form id="auth-form" style="display: flex; flex-direction: column; gap: 16px;">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" placeholder="your@email.com" required
-                           style="padding: 12px; border: 1px solid var(--border-color); background-color: var(--tertiary-color); color: var(--text-color); border-radius: 8px; font-size: 14px; font-family: inherit;">
+        <div id="authModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="auth-title">Login</h2>
+                    <button class="close-btn" onclick="closeAuthModal()">&times;</button>
                 </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" placeholder="Enter password" required
-                           style="padding: 12px; border: 1px solid var(--border-color); background-color: var(--tertiary-color); color: var(--text-color); border-radius: 8px; font-size: 14px; font-family: inherit;">
-                </div>
-                <div id="signup-fields" style="display: none;">
+                <form id="auth-form" style="display: flex; flex-direction: column; gap: 16px;">
                     <div class="form-group">
-                        <label>Full Name</label>
-                        <input type="text" placeholder="Your full name"
+                        <label>Email</label>
+                        <input type="email" placeholder="your@email.com"
+                               autocomplete="email"
+                               required
                                style="padding: 12px; border: 1px solid var(--border-color); background-color: var(--tertiary-color); color: var(--text-color); border-radius: 8px; font-size: 14px; font-family: inherit;">
                     </div>
-                    <div class="form-group" style="margin-top: 16px;">
-                        <label>Phone Number</label>
-                        <input type="tel" placeholder="10-digit phone number"
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" placeholder="Enter password"
+                               autocomplete="current-password"
+                               required
                                style="padding: 12px; border: 1px solid var(--border-color); background-color: var(--tertiary-color); color: var(--text-color); border-radius: 8px; font-size: 14px; font-family: inherit;">
                     </div>
-                </div>
-                <button type="submit" class="btn-primary"
-                        style="width: 100%; background-color: var(--primary-color); color: var(--background-color); border: none; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">
-                    Submit
-                </button>
-            </form>
+                    <div id="signup-fields" style="display: none;">
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" placeholder="Your full name"
+                                   autocomplete="name"
+                                   style="padding: 12px; border: 1px solid var(--border-color); background-color: var(--tertiary-color); color: var(--text-color); border-radius: 8px; font-size: 14px; font-family: inherit;">
+                        </div>
+                        <div class="form-group" style="margin-top: 16px;">
+                            <label>Phone Number</label>
+                            <input type="tel" placeholder="10-digit phone number"
+                                   autocomplete="tel"
+                                   style="padding: 12px; border: 1px solid var(--border-color); background-color: var(--tertiary-color); color: var(--text-color); border-radius: 8px; font-size: 14px; font-family: inherit;">
+                        </div>
+                    </div>
+                    <button type="submit" class="sidebar-auth-btn primary"
+                            style="width: 100%; padding: 10px; text-align: center; border:none;">
+                        Submit
+                    </button>
+                </form>
+            </div>
         </div>
-    </div>
 
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2025 FairRide. All rights reserved. | Bringing transparency to ride-sharing</p>
-    </footer>
+        <footer>
+            <p>&copy; 2025 FairRide. All rights reserved. | Bringing transparency to ride-sharing</p>
+        </footer>
+    </main>
+</div>
 
-    <script>
-        // Google Places Autocomplete (legacy warning is OK if your key supports it)
-        let pickupAutocomplete;
-        let dropoffAutocomplete;
-        let pickupPlace;
-        let dropoffPlace;
+<script>
+    window.addEventListener('load', () => {
+        document.body.classList.add('page-loaded');
+    });
 
-        function initPlaces() {
-            const pickupInput = document.getElementById('pickup');
-            const dropoffInput = document.getElementById('dropoff');
+    let pickupAutocomplete;
+    let dropoffAutocomplete;
+    let pickupPlace;
+    let dropoffPlace;
 
-            if (!window.google || !google.maps || !google.maps.places) {
-                console.error('Google Maps Places library not loaded');
-                return;
-            }
+    function initPlaces() {
+        const pickupInput = document.getElementById('pickup');
+        const dropoffInput = document.getElementById('dropoff');
 
-            pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput, {
-                types: ['geocode'],
-                componentRestrictions: { country: 'in' }
-            });
-
-            dropoffAutocomplete = new google.maps.places.Autocomplete(dropoffInput, {
-                types: ['geocode'],
-                componentRestrictions: { country: 'in' }
-            });
-
-            pickupAutocomplete.addListener('place_changed', () => {
-                pickupPlace = pickupAutocomplete.getPlace();
-            });
-
-            dropoffAutocomplete.addListener('place_changed', () => {
-                dropoffPlace = dropoffAutocomplete.getPlace();
-            });
+        if (!window.google || !google.maps || !google.maps.places) {
+            console.error('Google Maps Places library not loaded');
+            const warn = document.createElement('p');
+            warn.textContent = 'Location suggestions are unavailable right now. You can still type addresses manually.';
+            warn.style.color = '#ffa726';
+            warn.style.marginTop = '12px';
+            document.getElementById('search').appendChild(warn);
+            return;
         }
 
-        const cabData = [
-            { id: 1, provider: 'Ola',   logo: 'OLA',  logoClass: 'ola-logo',   vehicle: 'Mini',  capacity: 'Up to 4 passengers', eta: '4 min', priceMin: 120, priceMax: 140, available: 8,  surge: true,  surgeText: '1.2x' },
-            { id: 2, provider: 'Uber',  logo: 'UBER', logoClass: 'uber-logo',  vehicle: 'Go',    capacity: 'Up to 4 passengers', eta: '3 min', priceMin: 130, priceMax: 150, available: 5,  surge: false },
-            { id: 3, provider: 'Rapido',logo: 'RAP',  logoClass: 'rapido-logo',vehicle: 'Bike',  capacity: 'Solo',               eta: '2 min', priceMin: 60,  priceMax: 75,  available: 12, surge: false },
-            { id: 4, provider: 'Local Taxi', logo: 'TAX', logoClass: 'other-logo', vehicle: 'Sedan', capacity: 'Up to 5 passengers', eta: '6 min', priceMin: 140, priceMax: 170, available: 3, surge: false }
-        ];
-
-        function compareFares() {
-            const pickupInput = document.getElementById('pickup').value;
-            const dropoffInput = document.getElementById('dropoff').value;
-
-            if (!pickupInput || !dropoffInput) {
-                alert('Please enter both pickup and dropoff locations.');
-                return;
-            }
-
-            // If autocomplete failed (e.g., key issue), still allow demo data
-            if (!pickupPlace || !dropoffPlace) {
-                console.warn('Places not available, using demo distance/time');
-            }
-
-            document.getElementById('results-section').style.display = 'block';
-            document.getElementById('route-title').textContent = `${pickupInput} → ${dropoffInput}`;
-            document.getElementById('distance').textContent = '12 km';
-            document.getElementById('duration').textContent = '25 min';
-            document.getElementById('avg-price').textContent = '₹125';
-
-            renderTable(cabData);
-            scrollToSection('results-section');
-        }
-
-        function renderTable(data) {
-            const tableBody = document.getElementById('table-body');
-            tableBody.innerHTML = '';
-
-            if (!data || data.length === 0) return;
-
-            const minPrice = Math.min(...data.map(c => c.priceMin));
-
-            data.forEach(cab => {
-                const row = document.createElement('tr');
-                const cheapest = cab.priceMin === minPrice;
-
-                row.innerHTML = `
-                    <td>
-                        <div class="provider-cell">
-                            <div class="provider-logo ${cab.logoClass}">${cab.logo}</div>
-                            <span>${cab.provider}</span>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="vehicle-info">
-                            <span class="vehicle-name">${cab.vehicle}</span>
-                            <span class="vehicle-capacity">${cab.capacity}</span>
-                        </div>
-                    </td>
-                    <td>${cab.eta}</td>
-                    <td>
-                        <div class="price-cell">
-                            <span class="price-range">₹${cab.priceMin}–₹${cab.priceMax}</span>
-                            ${cab.surge ? `<span class="surge-badge">🔥 ${cab.surgeText} Surge</span>` : ''}
-                            ${cheapest ? `<span class="cheapest-badge">✓ Cheapest</span>` : ''}
-                        </div>
-                    </td>
-                    <td>
-                        <div class="availability">
-                            <div class="status-dot"></div>
-                            <div>
-                                <div class="availability-text">Available</div>
-                                <div class="availability-count">${cab.available} nearby</div>
-                            </div>
-                        </div>
-                    </td>
-                    <td><button class="action-btn" onclick="alert('Booking demo – integrate provider API later')">Book Now</button></td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-
-        function filterResults(type, evt) {
-            if (evt) {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-                evt.target.classList.add('active');
-            }
-
-            let filtered = cabData;
-            if (type === 'cheapest') {
-                const minPrice = Math.min(...cabData.map(c => c.priceMin));
-                filtered = cabData.filter(c => c.priceMin === minPrice);
-            } else if (type === 'fastest') {
-                filtered = [...cabData].sort((a, b) => parseInt(a.eta) - parseInt(b.eta)).slice(0, 1);
-            }
-
-            renderTable(filtered);
-        }
-
-        function sortTable(column) {
-            const sorted = [...cabData].sort((a, b) => {
-                if (column === 'provider') return a.provider.localeCompare(b.provider);
-                if (column === 'eta') return parseInt(a.eta) - parseInt(b.eta);
-                if (column === 'price') return a.priceMin - b.priceMin;
-                return 0;
-            });
-            renderTable(sorted);
-        }
-
-        function scrollToSection(id) {
-            const el = document.getElementById(id);
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        // Auth Modal
-        function openAuthModal(type) {
-            const title = type === 'login' ? 'Login' : 'Sign Up';
-            document.getElementById('auth-title').textContent = title;
-            document.getElementById('signup-fields').style.display = type === 'signup' ? 'block' : 'none';
-            document.getElementById('authModal').classList.add('show');
-        }
-
-        function closeAuthModal() {
-            document.getElementById('authModal').classList.remove('show');
-        }
-
-        // Close modal when clicking outside
-        window.addEventListener('click', function(event) {
-            const authModal = document.getElementById('authModal');
-            if (event.target === authModal) {
-                authModal.classList.remove('show');
-            }
+        pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput, {
+            types: ['geocode'],
+            componentRestrictions: { country: 'in' }
         });
 
-        document.getElementById('auth-form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            alert('Form submitted! (Integration with backend pending)');
-            closeAuthModal();
+        dropoffAutocomplete = new google.maps.places.Autocomplete(dropoffInput, {
+            types: ['geocode'],
+            componentRestrictions: { country: 'in' }
         });
-    </script>
+
+        pickupAutocomplete.addListener('place_changed', () => {
+            pickupPlace = pickupAutocomplete.getPlace();
+        });
+
+        dropoffAutocomplete.addListener('place_changed', () => {
+            dropoffPlace = dropoffAutocomplete.getPlace();
+        });
+    }
+
+    const cabData = [
+        { id: 1, provider: 'Ola',   logo: 'OLA',  logoClass: 'ola-logo',   vehicle: 'Mini',  capacity: 'Up to 4 passengers', eta: '4 min', priceMin: 120, priceMax: 140, available: 8,  surge: true,  surgeText: '1.2x' },
+        { id: 2, provider: 'Uber',  logo: 'UBER', logoClass: 'uber-logo',  vehicle: 'Go',    capacity: 'Up to 4 passengers', eta: '3 min', priceMin: 130, priceMax: 150, available: 5,  surge: false },
+        { id: 3, provider: 'Rapido',logo: 'RAP',  logoClass: 'rapido-logo',vehicle: 'Bike',  capacity: 'Solo',               eta: '2 min', priceMin: 60,  priceMax: 75,  available: 12, surge: false },
+        { id: 4, provider: 'Local Taxi', logo: 'TAX', logoClass: 'other-logo', vehicle: 'Sedan', capacity: 'Up to 5 passengers', eta: '6 min', priceMin: 140, priceMax: 170, available: 3, surge: false }
+    ];
+
+    function compareFares() {
+        const pickupInput = document.getElementById('pickup').value.trim();
+        const dropoffInput = document.getElementById('dropoff').value.trim();
+
+        if (!pickupInput || !dropoffInput) {
+            alert('Please enter both pickup and dropoff locations.');
+            return;
+        }
+
+        if (!pickupPlace || !dropoffPlace) {
+            console.warn('Places not available, using demo distance/time');
+        }
+
+        document.getElementById('results-section').style.display = 'block';
+        document.getElementById('route-title').textContent = `${pickupInput} → ${dropoffInput}`;
+        document.getElementById('distance').textContent = '12 km';
+        document.getElementById('duration').textContent = '25 min';
+        document.getElementById('avg-price').textContent = '₹125';
+
+        renderTable(cabData);
+        scrollToSection('results-section');
+    }
+
+    function renderTable(data) {
+        const tableBody = document.getElementById('table-body');
+        tableBody.innerHTML = '';
+
+        if (!data || data.length === 0) return;
+
+        const minPrice = Math.min(...data.map(c => c.priceMin));
+
+        data.forEach(cab => {
+            const row = document.createElement('tr');
+            const cheapest = cab.priceMin === minPrice;
+
+            row.innerHTML = `
+                <td>
+                    <div class="provider-cell">
+                        <div class="provider-logo ${cab.logoClass}">${cab.logo}</div>
+                        <span>${cab.provider}</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="vehicle-info">
+                        <span class="vehicle-name">${cab.vehicle}</span>
+                        <span class="vehicle-capacity">${cab.capacity}</span>
+                    </div>
+                </td>
+                <td>${cab.eta}</td>
+                <td>
+                    <div class="price-cell">
+                        <span class="price-range">₹${cab.priceMin}–₹${cab.priceMax}</span>
+                        ${cab.surge ? `<span class="surge-badge">🔥 ${cab.surgeText} Surge</span>` : ''}
+                        ${cheapest ? `<span class="cheapest-badge">✓ Cheapest</span>` : ''}
+                    </div>
+                </td>
+                <td>
+                    <div class="availability">
+                        <div class="status-dot"></div>
+                        <div>
+                            <div class="availability-text">Available</div>
+                            <div class="availability-count">${cab.available} nearby</div>
+                        </div>
+                    </div>
+                </td>
+                <td><button class="action-btn" onclick="alert('Booking demo – integrate provider API later')">Book Now</button></td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    function filterResults(type, evt) {
+        if (evt) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            evt.target.classList.add('active');
+        }
+
+        let filtered = cabData;
+        if (type === 'cheapest') {
+            const minPrice = Math.min(...cabData.map(c => c.priceMin));
+            filtered = cabData.filter(c => c.priceMin === minPrice);
+        } else if (type === 'fastest') {
+            filtered = [...cabData].sort((a, b) => parseInt(a.eta) - parseInt(b.eta)).slice(0, 1);
+        }
+
+        renderTable(filtered);
+    }
+
+    function sortTable(column) {
+        const sorted = [...cabData].sort((a, b) => {
+            if (column === 'provider') return a.provider.localeCompare(b.provider);
+            if (column === 'eta') return parseInt(a.eta) - parseInt(b.eta);
+            if (column === 'price') return a.priceMin - b.priceMin;
+            return 0;
+        });
+        renderTable(sorted);
+    }
+
+    function scrollToSection(id) {
+        const el = document.getElementById(id);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function openAuthModal(type) {
+        const title = type === 'login' ? 'Login' : 'Sign Up';
+        document.getElementById('auth-title').textContent = title;
+        document.getElementById('signup-fields').style.display = type === 'signup' ? 'block' : 'none';
+        document.getElementById('authModal').classList.add('show');
+    }
+
+    function closeAuthModal() {
+        document.getElementById('authModal').classList.remove('show');
+    }
+
+    window.addEventListener('click', function(event) {
+        const authModal = document.getElementById('authModal');
+        if (event.target === authModal) {
+            authModal.classList.remove('show');
+        }
+    });
+
+    document.getElementById('auth-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = this.querySelector('input[type="email"]').value.trim();
+        if (!email.includes('@')) {
+            alert('Please enter a valid email address.');
+            return;
+        }
+        alert('Form submitted! (Integration with backend pending)');
+        closeAuthModal();
+    });
+</script>
 </body>
 </html>
