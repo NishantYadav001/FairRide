@@ -473,22 +473,8 @@
         }
     </style>
 
-    <script src="config.js"></script>
-    <script>
-        (function() {
-            if (!window.config || !window.config.googleMapsApiKey) {
-                console.error("Google Maps API key is not configured. Please check config.js");
-                return;
-            }
-            var script = document.createElement('script');
-            script.src = "https://maps.googleapis.com/maps/api/js?key=" +
-                encodeURIComponent(window.config.googleMapsApiKey) +
-                "&libraries=places&callback=initPlaces";
-            script.async = true;
-            script.defer = true;
-            document.head.appendChild(script);
-        })();
-    </script>
+    <!-- ORS config (API key lives here) -->
+    <script src="ors-config.js"></script>
 </head>
 <body>
 <div class="app-layout">
@@ -537,11 +523,11 @@
             <div class="form-grid">
                 <div class="form-group">
                     <label for="pickup">Pickup Location</label>
-                    <input type="text" id="pickup" placeholder="Enter pickup location" autocomplete="off">
+                    <input type="text" id="pickup" placeholder="Enter pickup location">
                 </div>
                 <div class="form-group">
                     <label for="dropoff">Dropoff Location</label>
-                    <input type="text" id="dropoff" placeholder="Enter dropoff location" autocomplete="off">
+                    <input type="text" id="dropoff" placeholder="Enter dropoff location">
                 </div>
                 <div class="form-group">
                     <label for="ride-type">Ride Type</label>
@@ -675,44 +661,6 @@
         document.body.classList.add('page-loaded');
     });
 
-    let pickupAutocomplete;
-    let dropoffAutocomplete;
-    let pickupPlace;
-    let dropoffPlace;
-
-    function initPlaces() {
-        const pickupInput = document.getElementById('pickup');
-        const dropoffInput = document.getElementById('dropoff');
-
-        if (!window.google || !google.maps || !google.maps.places) {
-            console.error('Google Maps Places library not loaded');
-            const warn = document.createElement('p');
-            warn.textContent = 'Location suggestions are unavailable right now. You can still type addresses manually.';
-            warn.style.color = '#ffa726';
-            warn.style.marginTop = '12px';
-            document.getElementById('search').appendChild(warn);
-            return;
-        }
-
-        pickupAutocomplete = new google.maps.places.Autocomplete(pickupInput, {
-            types: ['geocode'],
-            componentRestrictions: { country: 'in' }
-        });
-
-        dropoffAutocomplete = new google.maps.places.Autocomplete(dropoffInput, {
-            types: ['geocode'],
-            componentRestrictions: { country: 'in' }
-        });
-
-        pickupAutocomplete.addListener('place_changed', () => {
-            pickupPlace = pickupAutocomplete.getPlace();
-        });
-
-        dropoffAutocomplete.addListener('place_changed', () => {
-            dropoffPlace = dropoffAutocomplete.getPlace();
-        });
-    }
-
     const cabData = [
         { id: 1, provider: 'Ola',   logo: 'OLA',  logoClass: 'ola-logo',   vehicle: 'Mini',  capacity: 'Up to 4 passengers', eta: '4 min', priceMin: 120, priceMax: 140, available: 8,  surge: true,  surgeText: '1.2x' },
         { id: 2, provider: 'Uber',  logo: 'UBER', logoClass: 'uber-logo',  vehicle: 'Go',    capacity: 'Up to 4 passengers', eta: '3 min', priceMin: 130, priceMax: 150, available: 5,  surge: false },
@@ -720,27 +668,119 @@
         { id: 4, provider: 'Local Taxi', logo: 'TAX', logoClass: 'other-logo', vehicle: 'Sedan', capacity: 'Up to 5 passengers', eta: '6 min', priceMin: 140, priceMax: 170, available: 3, surge: false }
     ];
 
-    function compareFares() {
-        const pickupInput = document.getElementById('pickup').value.trim();
-        const dropoffInput = document.getElementById('dropoff').value.trim();
+    async function compareFares() {
+        const pickupText = document.getElementById('pickup').value.trim();
+        const dropoffText = document.getElementById('dropoff').value.trim();
 
-        if (!pickupInput || !dropoffInput) {
+        if (!pickupText || !dropoffText) {
             alert('Please enter both pickup and dropoff locations.');
             return;
         }
 
-        if (!pickupPlace || !dropoffPlace) {
-            console.warn('Places not available, using demo distance/time');
+        try {
+            const [origin, destination] = await Promise.all([
+                geocodeAddress(pickupText),
+                geocodeAddress(dropoffText)
+            ]);
+
+            if (!origin || !destination) {
+                alert('Could not find one of the locations. Try adding city and state, e.g. "Noida, Uttar Pradesh".');
+                return;
+            }
+
+            const routeInfo = await getRoute(origin, destination);
+            if (!routeInfo) {
+                alert('No route found between these locations.');
+                return;
+            }
+
+            const km = routeInfo.distance / 1000;
+            const durationMinutes = Math.round(routeInfo.duration / 60);
+
+            document.getElementById('route-title').textContent =
+                `${pickupText} → ${dropoffText}`;
+            document.getElementById('distance').textContent =
+                `${km.toFixed(1)} km`;
+            document.getElementById('duration').textContent =
+                `${durationMinutes} min`;
+
+            const approxPrice = Math.round(10 * km + 40);
+            document.getElementById('avg-price').textContent = `₹${approxPrice}`;
+
+            document.getElementById('results-section').style.display = 'block';
+            renderTable(cabData);
+            scrollToSection('results-section');
+        } catch (err) {
+            console.error(err);
+            alert('Something went wrong while contacting the routing service.');
+        }
+    }
+
+    async function geocodeAddress(text) {
+        const apiKey = window.orsConfig && window.orsConfig.apiKey;
+        if (!apiKey) {
+            console.error('ORS API key missing in ors-config.js');
+            return null;
         }
 
-        document.getElementById('results-section').style.display = 'block';
-        document.getElementById('route-title').textContent = `${pickupInput} → ${dropoffInput}`;
-        document.getElementById('distance').textContent = '12 km';
-        document.getElementById('duration').textContent = '25 min';
-        document.getElementById('avg-price').textContent = '₹125';
+        const url = `https://api.openrouteservice.org/geocode/search` +
+            `?api_key=${encodeURIComponent(apiKey)}` +
+            `&text=${encodeURIComponent(text)}` +
+            `&boundary.country=IN`;
 
-        renderTable(cabData);
-        scrollToSection('results-section');
+        const res = await fetch(url);
+        if (!res.ok) {
+            console.error('Geocoding failed', res.status);
+            return null;
+        }
+        const data = await res.json();
+        if (!data.features || data.features.length === 0) {
+            return null;
+        }
+        const [lon, lat] = data.features[0].geometry.coordinates;
+        return { lon, lat };
+    }
+
+    async function getRoute(origin, destination) {
+        const apiKey = window.orsConfig && window.orsConfig.apiKey;
+        if (!apiKey) {
+            console.error('ORS API key missing in ors-config.js');
+            return null;
+        }
+
+        const url = 'https://api.openrouteservice.org/v2/directions/driving-car';
+
+        const body = {
+            coordinates: [
+                [origin.lon, origin.lat],
+                [destination.lon, destination.lat]
+            ]
+        };
+
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': apiKey
+            },
+            body: JSON.stringify(body)
+        });
+
+        if (!res.ok) {
+            console.error('Directions failed', res.status);
+            return null;
+        }
+
+        const data = await res.json();
+        if (!data.routes || data.routes.length === 0) {
+            return null;
+        }
+
+        const summary = data.routes[0].summary;
+        return {
+            distance: summary.distance,   // meters
+            duration: summary.duration    // seconds
+        };
     }
 
     function renderTable(data) {
