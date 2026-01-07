@@ -150,7 +150,7 @@ function App() {
               ) : 'Find Fair Prices'}
             </Button>
           </Form>
-        </card>
+        </Card>
 
         {/* Error Message */}
         {error && <Alert variant="danger">{error}</Alert>}

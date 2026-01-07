@@ -661,12 +661,43 @@
         document.body.classList.add('page-loaded');
     });
 
-    const cabData = [
-        { id: 1, provider: 'Ola',   logo: 'OLA',  logoClass: 'ola-logo',   vehicle: 'Mini',  capacity: 'Up to 4 passengers', eta: '4 min', priceMin: 120, priceMax: 140, available: 8,  surge: true,  surgeText: '1.2x' },
-        { id: 2, provider: 'Uber',  logo: 'UBER', logoClass: 'uber-logo',  vehicle: 'Go',    capacity: 'Up to 4 passengers', eta: '3 min', priceMin: 130, priceMax: 150, available: 5,  surge: false },
-        { id: 3, provider: 'Rapido',logo: 'RAP',  logoClass: 'rapido-logo',vehicle: 'Bike',  capacity: 'Solo',               eta: '2 min', priceMin: 60,  priceMax: 75,  available: 12, surge: false },
-        { id: 4, provider: 'Local Taxi', logo: 'TAX', logoClass: 'other-logo', vehicle: 'Sedan', capacity: 'Up to 5 passengers', eta: '6 min', priceMin: 140, priceMax: 170, available: 3, surge: false }
-    ];
+    // cabData will be filled from backend formula API
+    const cabData = [];
+
+    async function updateLiveFares(distanceKm, durationMin) {
+        const res = await fetch('http://localhost:8080/api/fare-estimates', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ distanceKm, durationMin })
+        });
+
+        if (!res.ok) {
+            console.error('Fare API error', res.status);
+            alert('Could not get fare estimates right now.');
+            return;
+        }
+
+        const fares = await res.json();
+
+            const mapped = fares.map((f, index) => ({
+                id: index + 1,
+                provider: f.provider,
+                logo: f.provider.toUpperCase(),
+                logoClass: f.provider.toLowerCase() + '-logo',
+                vehicle: f.vehicle,
+                capacity: 'Up to 4 passengers',
+                eta: `${3 + index * 2} min`,
+                priceMin: f.price,
+                priceMax: f.price + 20,
+                available: 5 + index * 3,
+                surge: f.surge && f.surge > 1,
+                surgeText: (f.surge && typeof f.surge === 'number') ? `${f.surge.toFixed(1)}x` : '1.0x'
+            }));
+        cabData.length = 0;
+        mapped.forEach(m => cabData.push(m));
+
+        renderTable(cabData);
+    }
 
     async function compareFares() {
         const pickupText = document.getElementById('pickup').value.trim();
@@ -708,7 +739,7 @@
             document.getElementById('avg-price').textContent = `₹${approxPrice}`;
 
             document.getElementById('results-section').style.display = 'block';
-            renderTable(cabData);
+            await updateLiveFares(km, durationMinutes);
             scrollToSection('results-section');
         } catch (err) {
             console.error(err);
@@ -881,16 +912,48 @@
         }
     });
 
-    document.getElementById('auth-form').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const email = this.querySelector('input[type="email"]').value.trim();
-        if (!email.includes('@')) {
-            alert('Please enter a valid email address.');
+    document.getElementById('auth-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const email = this.querySelector('input[type="email"]').value.trim();
+    const password = this.querySelector('input[type="password"]').value.trim();
+
+    if (!email || !email.includes('@')) {
+        alert('Please enter a valid email address.');
+        return;
+    }
+    if (!password || password.length < 6) {
+        alert('Password must be at least 6 characters.');
+        return;
+    }
+
+    const mode = document.getElementById('auth-title').textContent === 'Sign Up'
+        ? 'signup'
+        : 'login';
+
+    const url = `http://localhost:8080/api/auth/${mode}`;
+
+    try {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+            alert(data.error || 'Something went wrong.');
             return;
         }
-        alert('Form submitted! (Integration with backend pending)');
+
+        alert(data.message || (mode === 'signup' ? 'Signed up!' : 'Logged in!'));
         closeAuthModal();
-    });
+    } catch (err) {
+        console.error('Auth error', err);
+        alert('Could not reach auth server.');
+    }
+});
 </script>
 </body>
 </html>
