@@ -8,5 +8,9 @@
   "scripts": {
     "dev": "npm run dev --workspace=packages/frontend",
     "start:backend": "npm run start --workspace=packages/backend"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "mysql2": "^3.16.0"
   }
 }
