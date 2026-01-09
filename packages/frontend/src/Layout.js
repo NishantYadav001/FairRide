@@ -9,10 +9,12 @@ const Layout = ({ children }) => {
   const isAdmin = email === ADMIN_EMAIL;
 
   const isActive = (path) => (location.pathname === path ? 'active' : '');
+  // sidebar stays on the left
+  const sidebarClass = 'sidebar';
 
   return (
     <div className="app-layout">
-      <aside className={`sidebar ${isLoggedIn ? 'collapsed' : ''}`}>
+      <aside className={sidebarClass}>
         <div className="sidebar-logo">
           <span aria-hidden="true">🚗</span>
           <span>FairRide</span>
@@ -45,10 +47,45 @@ const Layout = ({ children }) => {
             </Link>
           )}
         </nav>
+        <div className="sidebar-footer" style={{ marginTop: 'auto' }}>
+          {!isLoggedIn ? (
+            <>
+              <button
+                className="sidebar-auth-btn"
+                onClick={() => window.dispatchEvent(new CustomEvent('openLogin'))}
+              >
+                Login
+              </button>
+              <button
+                className="sidebar-auth-btn primary"
+                style={{ marginTop: 8 }}
+                onClick={() => window.dispatchEvent(new CustomEvent('openSignup'))}
+              >
+                Sign up
+              </button>
+            </>
+          ) : (
+            <>
+              <div style={{ color: 'var(--text-secondary)', fontSize: 13, marginBottom: 8 }}>
+                {localStorage.getItem('userName') || localStorage.getItem('userEmail')}
+              </div>
+              <button
+                className="sidebar-auth-btn"
+                onClick={() => {
+                  localStorage.removeItem('userEmail');
+                  localStorage.removeItem('userName');
+                  localStorage.removeItem('isLoggedIn');
+                  // reload so app picks new state
+                  window.location.reload();
+                }}
+              >
+                Logout
+              </button>
+            </>
+          )}
+        </div>
       </aside>
-      <main className={`main-content ${isLoggedIn ? 'sidebar-collapsed' : ''}`}>
-        {children}
-      </main>
+      <main className="main-content">{children}</main>
     </div>
   );
 };

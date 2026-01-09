@@ -38,7 +38,18 @@ const Home = () => {
     const savedName = localStorage.getItem('userName');
     if (savedEmail) {
       setUser({ email: savedEmail, name: savedName || '' });
+      document.body.classList.add('has-right-sidebar');
     }
+
+    const openLoginHandler = () => setShowLogin(true);
+    const openSignupHandler = () => setShowSignup(true);
+    window.addEventListener('openLogin', openLoginHandler);
+    window.addEventListener('openSignup', openSignupHandler);
+
+    return () => {
+      window.removeEventListener('openLogin', openLoginHandler);
+      window.removeEventListener('openSignup', openSignupHandler);
+    };
   }, []);
 
   const handleLogout = () => {
@@ -46,6 +57,7 @@ const Home = () => {
     localStorage.removeItem('userEmail');
     localStorage.removeItem('userName');
     localStorage.removeItem('isLoggedIn');
+    document.body.classList.remove('has-right-sidebar');
   };
 
   const handleAuthSubmit = async (mode) => {
@@ -69,6 +81,7 @@ const Home = () => {
       setUser({ email: authEmail });
       localStorage.setItem('userEmail', authEmail);
       localStorage.setItem('isLoggedIn', 'true');
+      document.body.classList.add('has-right-sidebar');
 
       setShowLogin(false);
       setShowSignup(false);

@@ -63,8 +63,89 @@ body {
   gap: 24px;
   height: 100vh;
   overflow-y: auto;
-  z-index: 100;
+  z-index: 1000;
+  /* make the left sidebar fixed so it doesn't scroll with page content */
+  position: fixed;
+  left: 0;
+  top: 0;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+}
+
+/* when logged in: icon-only sidebar on the RIGHT */
+.sidebar.right-collapsed {
+  width: 72px;
+  flex: 0 0 72px;
+  order: 2; /* push to right side */
+}
+
+/* make collapsed sidebar fixed on the right so main content stays scrollable */
+.sidebar.right-collapsed {
+  position: fixed;
+  right: 0;
+  top: 0;
+  height: 100vh;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  transition: width 200ms ease;
+}
+
+/* hide labels but keep them available to show on hover */
+.sidebar.right-collapsed .sidebar-label {
+  opacity: 0;
+  white-space: nowrap;
+  transition: opacity 160ms ease;
+  margin-left: 8px;
+  display: inline-block;
+}
+
+.sidebar.right-collapsed .sidebar-logo span:last-child {
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.sidebar.right-collapsed .sidebar-logo {
+  justify-content: center;
+}
+
+/* when hovering the collapsed sidebar, expand and reveal labels */
+.sidebar.right-collapsed:hover {
+  width: 240px;
+}
+
+.sidebar.right-collapsed:hover .sidebar-label {
+  opacity: 1;
+}
+
+.sidebar.right-collapsed:hover .sidebar-logo span:last-child {
+  opacity: 1;
+}
+
+/* ensure main content does not go under the fixed collapsed sidebar */
+.main-content {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 2rem;
+  transition: margin-right 200ms ease;
+}
+
+/* reserve space on the left for the fixed sidebar so content isn't hidden */
+.sidebar:not(.right-collapsed) ~ .main-content,
+.app-layout > .sidebar:not(.right-collapsed) + .main-content {
+  margin-left: 240px;
+}
+
+/* when sidebar is collapsed to the right, remove left margin and reserve space on the right */
+.sidebar.right-collapsed ~ .main-content,
+.app-layout > .sidebar.right-collapsed + .main-content {
+  margin-left: 0;
+  margin-right: 72px;
+}
+
+/* reserve space on the right when collapsed so content isn't hidden */
+body.has-right-sidebar .main-content {
+  margin-right: 72px;
 }
 
 .sidebar::-webkit-scrollbar {
