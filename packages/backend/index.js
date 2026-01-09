@@ -15,10 +15,10 @@ const uberServerToken = properties.get('uber.server-token');
 
 // ---------- MySQL connection pool ----------
 const pool = mysql.createPool({
-  host: '127.0.0.1',        // CHANGE: MySQL host
-  user: 'root',             // CHANGE: MySQL username
-  password: 'root',// CHANGE: MySQL password
-  database: 'cab_app',      // CHANGE: database you created
+  host: '127.0.0.1',      // your MySQL host
+  user: 'root',           // your MySQL username
+  password: 'root',       // your MySQL password
+  database: 'cab_app',    // your DB name
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
@@ -172,34 +172,26 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+const path = require('path');
+
 // ---------- Test DB route (optional) ----------
 app.get('/api/db-test', async (req, res) => {
   try {
     const conn = await pool.getConnection();
     const [rows] = await conn.query('SELECT 1 AS ok');
     conn.release();
-    res.json(rows[0]);
+    res.json(rows[0]);   // { ok: 1 }
   } catch (err) {
     console.error('DB test failed:', err);
     res.status(500).json({ error: 'DB connection failed' });
   }
 });
 
-app.get('/api/db-test', async (req, res) => {
-  try {
-    const conn = await pool.getConnection();
-    const [rows] = await conn.query('SELECT 1 AS ok');
-    conn.release();
-    res.json(rows[0]);   // should be { ok: 1 }
-  } catch (err) {
-    console.error('DB test failed:', err);
-    res.status(500).json({ error: 'DB connection failed' });
-  }
-});
+// Serve the frontend
+app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')));
 
-// ---------- Root ----------
-app.get('/', (req, res) => {
-  res.send('Backend server is running.');
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'build', 'index.html'));
 });
 
 app.listen(port, () => {
