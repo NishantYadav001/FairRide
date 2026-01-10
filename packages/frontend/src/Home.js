@@ -3,6 +3,9 @@ import axios from 'axios';
 import { Form, Button, Alert } from 'react-bootstrap';
 import MapPicker from './MapPicker';
 
+// API base can be overridden by public/config.js which sets window.appConfig.apiBase
+const API_BASE = (window.appConfig && window.appConfig.apiBase) || 'http://localhost:8081';
+
 const Home = () => {
   const [source, setSource] = useState(null);
   const [dest, setDest] = useState(null);
@@ -65,7 +68,7 @@ const Home = () => {
     setAuthError('');
 
     try {
-      const res = await fetch(`http://localhost:8080/api/auth/${mode}`, {
+      const res = await fetch(`${API_BASE}/api/auth/${mode}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: authEmail, password: authPassword })
@@ -234,7 +237,7 @@ const Home = () => {
       // Uber via backend
       let uberRides = [];
       try {
-        const uberApiUrl = `http://localhost:8080/api/uber/estimates?start_latitude=${srcCoords.lat}&start_longitude=${srcCoords.lon}&end_latitude=${destCoords.lat}&end_longitude=${destCoords.lon}`;
+        const uberApiUrl = `${API_BASE}/api/uber/estimates?start_latitude=${srcCoords.lat}&start_longitude=${srcCoords.lon}&end_latitude=${destCoords.lat}&end_longitude=${destCoords.lon}`;
         const uberRes = await axios.get(uberApiUrl);
         if (uberRes.data && uberRes.data.prices) {
           uberRides = uberRes.data.prices.map((price) => ({
@@ -342,6 +345,33 @@ const Home = () => {
       ].sort((a, b) => a.price - b.price);
 
       setRides(allRides);
+
+      // Save a simple trip history entry for logged-in users
+      try {
+        const loggedIn = localStorage.getItem('isLoggedIn') === 'true';
+        const email = localStorage.getItem('userEmail');
+        if (loggedIn && email) {
+          const historyKey = 'tripHistory';
+          const raw = localStorage.getItem(historyKey);
+          const allHistory = raw ? JSON.parse(raw) : {};
+          const entry = {
+            id: Date.now(),
+            route: `${finalSource.name || sourceText} → ${finalDest.name || destText}`,
+            distance: `${distanceKm.toFixed(1)} km`,
+            duration: `${durationMin} min`,
+            cheapestProvider: allRides[0]?.provider || null,
+            cheapestPrice: allRides[0]?.price || null,
+            timestamp: new Date().toISOString()
+          };
+          if (!Array.isArray(allHistory[email])) allHistory[email] = [];
+          allHistory[email].unshift(entry);
+          // keep recent 100 entries per user
+          allHistory[email] = allHistory[email].slice(0, 100);
+          localStorage.setItem(historyKey, JSON.stringify(allHistory));
+        }
+      } catch (e) {
+        console.error('Could not save trip history', e);
+      }
     } catch (err) {
       console.error(err);
       setError("Could not calculate route. Try simpler city names (e.g., 'Delhi', 'Noida').");

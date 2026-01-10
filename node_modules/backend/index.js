@@ -26,6 +26,11 @@ const pool = mysql.createPool({
 
 app.use(cors());
 app.use(express.json());
+// Log incoming requests for easier debugging
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  next();
+});
 
 // ---------- surge + formula fares ----------
 function getSurgeMultiplier() {
@@ -172,6 +177,38 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+// POST /api/auth/update-profile
+app.post('/api/auth/update-profile', async (req, res) => {
+  const { email, name, phone } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required.' });
+  }
+
+  try {
+    const conn = await pool.getConnection();
+    // Use upsert: insert if missing, otherwise update name and phone
+    // Requires `email` to be UNIQUE in the users table.
+    await conn.query(
+      'INSERT INTO users (email, name, phone) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name), phone = VALUES(phone)',
+      [email, name || null, phone || null]
+    );
+
+    // Return updated/inserted record (minimal)
+    const [updatedRows] = await conn.query('SELECT id, email, name, phone FROM users WHERE email = ?', [email]);
+    conn.release();
+
+    if (!updatedRows || updatedRows.length === 0) {
+      return res.status(500).json({ error: 'Failed to read updated user.' });
+    }
+
+    return res.json({ message: 'Profile updated.', user: updatedRows[0] });
+  } catch (err) {
+    console.error('Update profile error:', err);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
 const path = require('path');
 
 // ---------- Test DB route (optional) ----------
@@ -187,12 +224,16 @@ app.get('/api/db-test', async (req, res) => {
   }
 });
 
-// Serve the frontend
-app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')));
+// Serve the frontend only in production (prevents ENOENT during local dev)
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '..', 'frontend', 'build')));
 
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'build', 'index.html'));
-});
+  app.get('*', (req, res) => {
+    res.sendFile(
+      path.join(__dirname, '..', 'frontend', 'build', 'index.html')
+    );
+  });
+}
 
 app.listen(port, () => {
   console.log(`Backend server listening at http://localhost:${port}`);

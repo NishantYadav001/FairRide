@@ -2,6 +2,18 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const History = () => {
+  const email = localStorage.getItem('userEmail') || '';
+  const historyKey = 'tripHistory';
+  let userHistory = [];
+  try {
+    const raw = localStorage.getItem(historyKey);
+    const all = raw ? JSON.parse(raw) : {};
+    userHistory = (email && Array.isArray(all[email])) ? all[email] : [];
+  } catch (e) {
+    console.error('Could not read trip history', e);
+    userHistory = [];
+  }
+
   return (
     <div className="app-layout">
       {/* Main content */}
@@ -37,89 +49,47 @@ const History = () => {
             </select>
           </div>
 
-          <div className="history-list">
-            <div className="history-row header">
-              <div>Route</div>
-              <div>Date & time</div>
-              <div>Provider / Fare</div>
-              <div>Status</div>
-            </div>
+            <div className="history-list">
+              <div className="history-row header">
+                <div>Route</div>
+                <div>Date & time</div>
+                <div>Provider / Fare</div>
+                <div>Status</div>
+              </div>
 
-            <div className="history-row">
-              <div>
-                <div className="history-route">Greater Noida → Noida</div>
-                <div className="history-meta">Distance: 18 km • 32 min</div>
-              </div>
-              <div>
-                Dec 28, 6:30 PM
-                <br />
-                <span className="history-meta">Paid online</span>
-              </div>
-              <div>
-                <div className="history-provider">
-                  <span className="history-provider-badge">OLA</span>
-                  <span>Mini</span>
+              {userHistory.length === 0 ? (
+                <div className="history-row empty">
+                  <div style={{ padding: '24px' }}>No trips yet. Use the Compare tool to add trips to your history.</div>
                 </div>
-                <div className="history-fare">₹180</div>
-              </div>
-              <div>
-                <span className="history-status">
-                  <span className="status-dot"></span>
-                  Completed
-                </span>
-              </div>
+              ) : (
+                userHistory.map((t) => (
+                  <div className="history-row" key={t.id}>
+                    <div>
+                      <div className="history-route">{t.route}</div>
+                      <div className="history-meta">{t.distance} • {t.duration}</div>
+                    </div>
+                    <div>
+                      {new Date(t.timestamp).toLocaleString()}
+                      <br />
+                      <span className="history-meta">Recorded by FairRide</span>
+                    </div>
+                    <div>
+                      <div className="history-provider">
+                        <span className="history-provider-badge">{(t.cheapestProvider || 'OLA').toUpperCase()}</span>
+                        <span>{t.cheapestProvider ? 'Best fare' : ''}</span>
+                      </div>
+                      <div className="history-fare">₹{t.cheapestPrice ?? '-'}</div>
+                    </div>
+                    <div>
+                      <span className="history-status">
+                        <span className="status-dot"></span>
+                        Completed
+                      </span>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
-
-            <div className="history-row">
-              <div>
-                <div className="history-route">Noida → New Delhi</div>
-                <div className="history-meta">Distance: 24 km • 45 min</div>
-              </div>
-              <div>
-                Dec 26, 9:10 AM
-                <br />
-                <span className="history-meta">Cash</span>
-              </div>
-              <div>
-                <div className="history-provider">
-                  <span className="history-provider-badge">UBER</span>
-                  <span>Go</span>
-                </div>
-                <div className="history-fare">₹220</div>
-              </div>
-              <div>
-                <span className="history-status">
-                  <span className="status-dot"></span>
-                  Completed
-                </span>
-              </div>
-            </div>
-
-            <div className="history-row">
-              <div>
-                <div className="history-route">Sector 62 → Airport</div>
-                <div className="history-meta">Distance: 36 km • 55 min</div>
-              </div>
-              <div>
-                Dec 25, 4:15 PM
-                <br />
-                <span className="history-meta">Refund processed</span>
-              </div>
-              <div>
-                <div className="history-provider">
-                  <span className="history-provider-badge">OLA</span>
-                  <span>Prime Sedan</span>
-                </div>
-                <div className="history-fare">₹520</div>
-              </div>
-              <div>
-                <span className="history-status">
-                  <span className="status-dot cancelled"></span>
-                  Cancelled
-                </span>
-              </div>
-            </div>
-          </div>
         </div>
 
         <footer>

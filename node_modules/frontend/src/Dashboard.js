@@ -2,12 +2,25 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Dashboard = () => {
+  const email = localStorage.getItem('userEmail') || '';
+  const name = localStorage.getItem('userName') || '';
+  // load user history from localStorage
+  const historyKey = 'tripHistory';
+  let userHistory = [];
+  try {
+    const raw = localStorage.getItem(historyKey);
+    const all = raw ? JSON.parse(raw) : {};
+    userHistory = (email && Array.isArray(all[email])) ? all[email] : [];
+  } catch (e) {
+    console.error('Could not read trip history', e);
+  }
+
   return (
     <div className="app-layout">
       <main className="main-content">
         <div className="dashboard-container">
           <div className="dashboard-header">
-            <h1>Welcome back, User!</h1>
+            <h1>Welcome back, {name || (email ? email.split('@')[0] : 'User')}!</h1>
             <Link to="/" className="new-comparison-btn">
               New Comparison
             </Link>
@@ -15,14 +28,14 @@ const Dashboard = () => {
 
           <div className="stats-grid">
             <div className="stat-card">
-              <div className="stat-card-value">₹2,450</div>
+              <div className="stat-card-value">₹0</div>
               <div className="stat-card-label">Total Saved</div>
               <div className="stat-card-sublabel">This month</div>
             </div>
             <div className="stat-card">
-              <div className="stat-card-value">12</div>
+              <div className="stat-card-value">{userHistory.length}</div>
               <div className="stat-card-label">Trips Taken</div>
-              <div className="stat-card-sublabel">Last 30 days</div>
+              <div className="stat-card-sublabel">Total</div>
             </div>
             <div className="stat-card">
               <div className="stat-card-value">4.8⭐</div>
@@ -35,22 +48,20 @@ const Dashboard = () => {
               <h2>Recent Trips</h2>
             </div>
             <div className="trip-list">
-              <div className="trip-item">
-                <div className="provider-logo ola-logo">OLA</div>
-                <div className="trip-details">
-                  <div className="trip-route">Greater Noida → Noida</div>
-                  <div className="trip-timestamp">Dec 28, 6:30 PM</div>
-                </div>
-                <div className="trip-fare">₹180</div>
-              </div>
-              <div className="trip-item">
-                <div className="provider-logo uber-logo">UBER</div>
-                <div className="trip-details">
-                  <div className="trip-route">Noida → New Delhi</div>
-                  <div className="trip-timestamp">Dec 26, 9:10 AM</div>
-                </div>
-                <div className="trip-fare">₹220</div>
-              </div>
+              {userHistory.length === 0 ? (
+                <div className="empty-state">No trips yet. Use the Compare tool to add your first trip.</div>
+              ) : (
+                userHistory.slice(0, 5).map((t) => (
+                  <div className="trip-item" key={t.id}>
+                    <div className={`provider-logo ${t.cheapestProvider ? t.cheapestProvider.toLowerCase() : 'ola'}-logo`}>{(t.cheapestProvider||'OLA').toUpperCase()}</div>
+                    <div className="trip-details">
+                      <div className="trip-route">{t.route}</div>
+                      <div className="trip-timestamp">{new Date(t.timestamp).toLocaleString()}</div>
+                    </div>
+                    <div className="trip-fare">₹{t.cheapestPrice ?? '-'}</div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>
