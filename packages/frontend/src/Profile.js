@@ -5,16 +5,42 @@ const API_BASE = (window.appConfig && window.appConfig.apiBase) || 'http://local
 const Profile = () => {
   const storedEmail = localStorage.getItem('userEmail') || '';
   const storedName = localStorage.getItem('userName') || '';
+  const storedPhone = localStorage.getItem('userPhone') || '';
 
   const [email] = useState(storedEmail);
   const [name, setName] = useState(storedName);
-  const [phone, setPhone] = useState('');
+  const [phone, setPhone] = useState(storedPhone);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
 
+  // Load latest profile from backend
   useEffect(() => {
-    // Optionally fetch latest profile from backend here
-  }, []);
+    const fetchProfile = async () => {
+      if (!email) return;
+      try {
+        const res = await fetch(
+          `${API_BASE}/api/auth/profile?email=${encodeURIComponent(email)}`
+        );
+        if (!res.ok) {
+          console.warn('Failed to load profile, status:', res.status);
+          return;
+        }
+        const data = await res.json();
+        const user = data.user || {};
+        if (user.name) {
+          setName(user.name);
+          localStorage.setItem('userName', user.name);
+        }
+        if (user.phone) {
+          setPhone(user.phone);
+          localStorage.setItem('userPhone', user.phone);
+        }
+      } catch (err) {
+        console.error('Failed to load profile', err);
+      }
+    };
+    fetchProfile();
+  }, [email]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,7 +65,6 @@ const Profile = () => {
           return;
         }
       } else {
-        // Non-JSON response (likely HTML) — capture text for debugging
         const text = await res.text();
         const msg = `Unexpected response from server (status ${res.status}).`;
         setMessage(msg + ' See console for server response.');
@@ -54,18 +79,27 @@ const Profile = () => {
         return;
       }
 
+      const user = data.user || {};
+      const newName = user.name || name;
+      const newPhone = user.phone || phone;
+
       // Persist locally so UI updates across app
-      localStorage.setItem('userName', data.user?.name || name);
+      localStorage.setItem('userName', newName);
+      localStorage.setItem('userPhone', newPhone);
+      setName(newName);
+      setPhone(newPhone);
+
       setMessage('Profile updated successfully.');
     } catch (err) {
       console.error('Profile update error', err);
-      // Backend unreachable — persist changes locally so user doesn't lose edits.
       try {
         const pending = { email, name, phone, updatedAt: new Date().toISOString() };
         localStorage.setItem('userPendingProfile', JSON.stringify(pending));
         localStorage.setItem('userName', name);
-        // Keep email as source of truth for login
-        setMessage('Could not reach server — changes saved locally and will sync when backend is available.');
+        localStorage.setItem('userPhone', phone);
+        setMessage(
+          'Backend server is not responding. Your changes have been saved locally and will be synced when the server is back online.'
+        );
       } catch (storeErr) {
         console.error('Failed to save profile locally', storeErr);
         setMessage('Failed to update profile. See console for details.');
@@ -92,7 +126,7 @@ const Profile = () => {
                 </div>
                 <div className="profile-info">
                   <h2>{name || 'User Name'}</h2>
-                  <p>{email || 'user@example.com'} · +91 99999 99999</p>
+                  <p>{email || 'user@example.com'} · {phone || '+91 99999 99999'}</p>
                   <button type="button" className="change-photo-btn">
                     Change photo (coming soon)
                   </button>
@@ -106,11 +140,19 @@ const Profile = () => {
                 </p>
                 <div className="form-group">
                   <label>Full Name</label>
-                  <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
+                  <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                  />
                 </div>
                 <div className="form-group" style={{ marginTop: '16px' }}>
                   <label>Phone</label>
-                  <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
                 </div>
                 <div className="form-group" style={{ marginTop: '16px' }}>
                   <label>Email (login)</label>
@@ -119,7 +161,9 @@ const Profile = () => {
               </div>
 
               <div className="save-row">
-                <p className="save-note">{message || 'Changes are saved to the server and your browser.'}</p>
+                <p className="save-note">
+                  {message || 'Changes are saved to the server and your browser.'}
+                </p>
                 <button className="save-changes-btn" type="submit" disabled={saving}>
                   {saving ? 'Saving…' : 'Save changes'}
                 </button>

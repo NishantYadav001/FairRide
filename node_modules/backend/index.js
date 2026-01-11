@@ -4,6 +4,7 @@ const PropertiesReader = require('properties-reader');
 const fetch = require('node-fetch');
 const bcrypt = require('bcrypt');
 const mysql = require('mysql2/promise');
+const path = require('path');
 
 const app = express();
 const properties = PropertiesReader('application.properties');
@@ -26,6 +27,7 @@ const pool = mysql.createPool({
 
 app.use(cors());
 app.use(express.json());
+
 // Log incoming requests for easier debugging
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
@@ -89,10 +91,11 @@ app.get('/api/uber/estimates', async (req, res) => {
     return res.status(400).json({ error: 'Missing required query parameters.' });
   }
 
-  const url = `${uberApiBaseUrl}/estimates/price?start_latitude=${start_latitude}` +
-              `&start_longitude=${start_longitude}` +
-              `&end_latitude=${end_latitude}` +
-              `&end_longitude=${end_longitude}`;
+  const url =
+    `${uberApiBaseUrl}/estimates/price?start_latitude=${start_latitude}` +
+    `&start_longitude=${start_longitude}` +
+    `&end_latitude=${end_latitude}` +
+    `&end_longitude=${end_longitude}`;
 
   try {
     const response = await fetch(url, {
@@ -177,6 +180,33 @@ app.post('/api/auth/login', async (req, res) => {
   }
 });
 
+// GET /api/auth/profile?email=...
+app.get('/api/auth/profile', async (req, res) => {
+  const { email } = req.query;
+
+  if (!email) {
+    return res.status(400).json({ error: 'Email is required.' });
+  }
+
+  try {
+    const conn = await pool.getConnection();
+    const [rows] = await conn.query(
+      'SELECT id, email, name, phone FROM users WHERE email = ?',
+      [email]
+    );
+    conn.release();
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    return res.json({ user: rows[0] });
+  } catch (err) {
+    console.error('Get profile error:', err);
+    return res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
 // POST /api/auth/update-profile
 app.post('/api/auth/update-profile', async (req, res) => {
   const { email, name, phone } = req.body;
@@ -187,20 +217,23 @@ app.post('/api/auth/update-profile', async (req, res) => {
 
   try {
     const conn = await pool.getConnection();
-    // Use upsert: insert if missing, otherwise update name and phone
-    // Requires `email` to be UNIQUE in the users table.
-    await conn.query(
-      'INSERT INTO users (email, name, phone) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name), phone = VALUES(phone)',
-      [email, name || null, phone || null]
+
+    // Only update existing user (row already has password_hash from signup)
+    const [result] = await conn.query(
+      'UPDATE users SET name = ?, phone = ? WHERE email = ?',
+      [name || null, phone || null, email]
     );
 
-    // Return updated/inserted record (minimal)
-    const [updatedRows] = await conn.query('SELECT id, email, name, phone FROM users WHERE email = ?', [email]);
-    conn.release();
-
-    if (!updatedRows || updatedRows.length === 0) {
-      return res.status(500).json({ error: 'Failed to read updated user.' });
+    if (result.affectedRows === 0) {
+      conn.release();
+      return res.status(404).json({ error: 'User not found. Please sign up first.' });
     }
+
+    const [updatedRows] = await conn.query(
+      'SELECT id, email, name, phone FROM users WHERE email = ?',
+      [email]
+    );
+    conn.release();
 
     return res.json({ message: 'Profile updated.', user: updatedRows[0] });
   } catch (err) {
@@ -208,8 +241,6 @@ app.post('/api/auth/update-profile', async (req, res) => {
     return res.status(500).json({ error: 'Internal server error.' });
   }
 });
-
-const path = require('path');
 
 // ---------- Test DB route (optional) ----------
 app.get('/api/db-test', async (req, res) => {

@@ -658,74 +658,79 @@ const Home = () => {
         </div>
       )}
 
-      <section
-        id="how-it-works"
-        style={{
-          maxWidth: '1200px',
-          margin: '60px auto',
-          padding: '0 24px'
-        }}
-      >
-        <h2
-          style={{
-            textAlign: 'center',
-            marginBottom: '40px',
-            fontSize: '32px'
-          }}
-        >
-          How It Works
-        </h2>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: '24px'
-          }}
-        >
-          <div
-            style={{
-              textAlign: 'center',
-              padding: '24px',
-              background: 'var(--bg-secondary)',
-              borderRadius: '12px'
-            }}
-          >
-            <div style={{ fontSize: '40px', marginBottom: '16px' }}>📍</div>
-            <h3>Enter Locations</h3>
-            <p style={{ color: '#a0a0a0', fontSize: '14px' }}>
-              Enter your pickup and dropoff locations
-            </p>
-          </div>
-          <div
-            style={{
-              textAlign: 'center',
-              padding: '24px',
-              background: 'var(--bg-secondary)',
-              borderRadius: '12px'
-            }}
-          >
-            <div style={{ fontSize: '40px', marginBottom: '16px' }}>⚡</div>
-            <h3>Instant Comparison</h3>
-            <p style={{ color: '#a0a0a0', fontSize: '14px' }}>
-              Get fares from all platforms instantly
-            </p>
-          </div>
-          <div
-            style={{
-              textAlign: 'center',
-              padding: '24px',
-              background: 'var(--bg-secondary)',
-              borderRadius: '12px'
-            }}
-          >
-            <div style={{ fontSize: '40px', marginBottom: '16px' }}>💰</div>
-            <h3>Save Money</h3>
-            <p style={{ color: '#a0a0a0', fontSize: '14px' }}>
-              Choose the best deal and book directly
-            </p>
-          </div>
-        </div>
-      </section>
+<section
+  id="how-it-works"
+  style={{
+    maxWidth: '1200px',
+    margin: '60px auto',
+    padding: '0 24px'
+  }}
+>
+  <h2
+    style={{
+      textAlign: 'center',
+      marginBottom: '40px',
+      fontSize: '32px',
+      color: 'var(--text-primary)'      // main heading color
+    }}
+  >
+    How It Works
+  </h2>
+
+  <div
+    style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+      gap: '24px'
+    }}
+  >
+    <div
+      style={{
+        textAlign: 'center',
+        padding: '24px',
+        background: 'var(--bg-secondary)',
+        borderRadius: '12px'
+      }}
+    >
+      <div style={{ fontSize: '40px', marginBottom: '16px' }}>📍</div>
+      <h3 style={{ color: 'var(--text-primary)' }}>Enter Locations</h3>
+      <p style={{ color: 'var(--text-tertiary)', fontSize: '14px' }}>
+        Enter your pickup and dropoff locations
+      </p>
+    </div>
+
+    <div
+      style={{
+        textAlign: 'center',
+        padding: '24px',
+        background: 'var(--bg-secondary)',
+        borderRadius: '12px'
+      }}
+    >
+      <div style={{ fontSize: '40px', marginBottom: '16px' }}>⚡</div>
+      <h3 style={{ color: 'var(--text-primary)' }}>Instant Comparison</h3>
+      <p style={{ color: 'var(--text-tertiary)', fontSize: '14px' }}>
+        Get fares from all platforms instantly
+      </p>
+    </div>
+
+    <div
+      style={{
+        textAlign: 'center',
+        padding: '24px',
+        background: 'var(--bg-secondary)',
+        borderRadius: '12px'
+      }}
+    >
+      <div style={{ fontSize: '40px', marginBottom: '16px' }}>💰</div>
+      <h3 style={{ color: 'var(--text-primary)' }}>Save Money</h3>
+      <p style={{ color: 'var(--text-tertiary)', fontSize: '14px' }}>
+        Choose the best deal and book directly
+      </p>
+    </div>
+  </div>
+</section>
+
 
       <footer>
         <p>

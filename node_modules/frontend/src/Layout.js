@@ -16,7 +16,7 @@ const Layout = ({ children }) => {
     <div className="app-layout">
       <aside className={sidebarClass}>
         <div className="sidebar-logo">
-          <span aria-hidden="true">🚗</span>
+          <span className="sidebar-icon">🚗</span>
           <span>FairRide</span>
         </div>
         <nav className="sidebar-nav">

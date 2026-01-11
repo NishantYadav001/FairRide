@@ -165,19 +165,28 @@ body.has-right-sidebar .main-content {
   background: var(--text-tertiary);
 }
 
+/* Logo row */
 .sidebar-logo {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   font-weight: 700;
   font-size: 22px;
-  padding: 12px 16px;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   letter-spacing: -0.5px;
 }
+
+/* Car icon only for the logo */
+.sidebar-logo .sidebar-icon {
+  font-size: 26px;            /* bigger icon */
+  color: #10b981;             /* choose your color: #10b981 green, #ffffff white, etc. */
+  flex-shrink: 0;
+}
+
+/* FairRide text next to icon */
+.sidebar-logo span:last-child {
+  color: var(--text-primary); /* main text color */
+}
+
 
 .sidebar-logo span:first-child {
   font-size: 28px;
@@ -708,14 +717,17 @@ tbody tr:last-child td {
 
 /* ===== FOOTER ===== */
 footer {
+  width: 100%;
   background-color: var(--bg-secondary);
   color: var(--text-tertiary);
-  padding: 32px 32px;
+  padding: 24px 32px;              /* keep vertical padding, side padding optional */
   text-align: center;
   margin-top: 80px;
   font-size: 13px;
   border-top: 1px solid var(--border-color);
+  box-sizing: border-box;
 }
+
 
 /* ===== DASHBOARD ===== */
 .dashboard-container {
@@ -1159,6 +1171,7 @@ nav {
 .content h1 {
   margin: 0 0 32px 0;
   font-size: 32px;
+  /* color: #ffffff; */
   font-weight: 800;
   background: linear-gradient(135deg, var(--primary-light), var(--accent-color));
   -webkit-background-clip: text;
@@ -1441,6 +1454,7 @@ nav {
 
 .profile-info h2 {
   margin: 0 0 8px 0;
+  color: #ffffff;
   font-size: 24px;
   font-weight: 700;
 }
